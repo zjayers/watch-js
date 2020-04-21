@@ -4,6 +4,7 @@ const chokidar = require('chokidar');
 const debounce = require('lodash.debounce');
 const program = require('caporal');
 const { spawn } = require('child_process');
+const chalk = require('chalk');
 
 program
   .version('0.0.1')
@@ -20,9 +21,16 @@ program
       throw new Error(`Could not find the file ${fileToRun}`);
     }
 
+    let proc;
     // Debouced function to start the input file
     const start = debounce(() => {
-      spawn('node', [fileToRun], { stdio: 'inherit' });
+      if (proc) {
+        // Kill last process if existing
+        proc.kill();
+      }
+      // eslint-disable-next-line no-console
+      console.log(chalk.green('>>>> Starting Process...'));
+      proc = spawn('node', [fileToRun], { stdio: 'inherit' });
     }, 100);
 
     // File watcher
